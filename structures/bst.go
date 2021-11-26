@@ -183,7 +183,7 @@ func (bt *BinarySearchTree) PrintTree() {
 	values := bt.Values(true)
 	depth := len(values)
 	indentations := getIndentation(depth)
-	fmt.Println(indentations)
+	
 	for i, layer := range values {
 		s := ""
 		s += strings.Repeat(" ", indentations[i][0])
