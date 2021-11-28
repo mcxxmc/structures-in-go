@@ -1,7 +1,6 @@
 package structures
 
 import (
-	"fmt"
 	"math"
 	"some-data-structures/common"
 	"strings"
@@ -176,20 +175,21 @@ func (bt *BinarySearchTree) Delete(val interface{}) bool {
 	return true
 }
 
-// PrintTree prints the tree (using bfs)
+// String stringify
 //
 // TODO: better visualization (include "/" and "\")
-func (bt *BinarySearchTree) PrintTree() {
+func (bt *BinarySearchTree) String() string {
 	values := bt.Values(true)
 	depth := len(values)
-	indentations := getIndentation(depth)
-	
+	indentations := getIndentation(depth, common.DefaultStringLength)
+
+	s := ""
+
 	for i, layer := range values {
-		s := ""
 		s += strings.Repeat(" ", indentations[i][0])
 		switcher := false  // TODO: remove this; [i][1] and [1][2] is always same for i != depth - 1
 		for _, element := range layer {
-			s += common.FixedMinLengthDefault(common.CastString(element))
+			s += common.FixedMinLengthDefault(common.CastString(element))  // TODO remove this fixedLength
 			if switcher {
 				s += strings.Repeat(" ", indentations[i][2])
 				switcher = false
@@ -198,17 +198,18 @@ func (bt *BinarySearchTree) PrintTree() {
 				switcher = true
 			}
 		}
-		fmt.Println(s)
-		s = ""
+		s += "\n"
 	}
+
+	return s
 }
 
 // used for calculating indentations for visualizing a bst
-func getIndentation(depth int) [][]int {
+func getIndentation(depth int, stringLength int) [][]int {
 	if depth < 1 {
 		return make([][]int, 0)
 	}
-	totalDisplayLength := (3 + common.DefaultStringLength) * int(math.Pow(float64(2), float64(depth - 1))) - 4
+	totalDisplayLength := (3 + stringLength) * int(math.Pow(float64(2), float64(depth - 1))) - 4
 
 	ans := make([][]int, depth)
 	for i := depth - 1; i >= 0; i -- {
@@ -218,15 +219,15 @@ func getIndentation(depth int) [][]int {
 			tmp[1] = 2
 			tmp[2] = 4
 		} else if i == 0 {
-			tmp[0] = (totalDisplayLength - common.DefaultStringLength) / 2
+			tmp[0] = (totalDisplayLength - stringLength) / 2
 			tmp[1] = 0
 			tmp[2] = 0
 		} else {
-			tmp[2] = ans[i + 1][1] + ans[i + 1][2] + common.DefaultStringLength
+			tmp[2] = ans[i + 1][1] + ans[i + 1][2] + stringLength
 			tmp[1] = tmp[2]
 			numOfNodes := int(math.Pow(float64(2), float64(i)))
 			tmp[0] = (totalDisplayLength - (numOfNodes * tmp[1] / 2) - ((numOfNodes / 2 - 1) * tmp[2]) -
-				(common.DefaultStringLength * numOfNodes)) / 2
+				(stringLength * numOfNodes)) / 2
 		}
 		ans[i] = tmp
 	}

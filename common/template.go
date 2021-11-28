@@ -6,6 +6,6 @@ package common
 //
 // 1. Val in trees
 type Template interface {
-	String() string
-	Copy() interface{}
+	String() string     // stringify
+	Copy() interface{}  // makes a deep copy
 }

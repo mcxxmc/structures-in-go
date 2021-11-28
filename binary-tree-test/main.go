@@ -19,49 +19,50 @@ func (r *Record) Copy() interface{} {
 }
 
 func main() {
+	insertions := []int{10, 5, 15, 3, 8, 20, 0, 24}
+
 	fmt.Println("The first tree")
 	bTree := structures.NewIntBinaryTree()
-	insertions := []int{10, 5, 15, 3, 8, 20, 0, 24}
 	for _, num := range insertions {
 		bTree.Insert(num)
 	}
-	bTree.PrintTree()
+	fmt.Println(bTree.String())
 	depth := bTree.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 
 	fmt.Println("make a copy")
 	copied := bTree.Copy()
-	copied.PrintTree()
+	fmt.Println(copied.String())
 	depth = copied.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 
 	fmt.Println("rebuild a tree")
 	newTree := bTree.Rebuild()
-	newTree.PrintTree()
+	fmt.Println(newTree.String())
 	depth = newTree.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 
 	fmt.Println("Delete 8")
 	newTree.Delete(8)
-	newTree.PrintTree()
+	fmt.Println(newTree.String())
 	depth = newTree.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 
 	fmt.Println("Delete 20")
 	newTree.Delete(20)
-	newTree.PrintTree()
+	fmt.Println(newTree.String())
 	depth = newTree.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 
 	fmt.Println("Delete 24")
 	newTree.Delete(24)
-	newTree.PrintTree()
+	fmt.Println(newTree.String())
 	depth = newTree.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 
 	fmt.Println("Delete 15")
 	newTree.Delete(15)
-	newTree.PrintTree()
+	fmt.Println(newTree.String())
 	depth = newTree.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 
@@ -82,7 +83,27 @@ func main() {
 	for _, num := range insertions {
 		customizedTree.Insert(&Record{Val: num})
 	}
-	customizedTree.PrintTree()
+	fmt.Println(customizedTree.String())
+	depth = customizedTree.Depth()
+	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
+
+	fmt.Println("Customized interface with Vector")
+	compare = func(a, b interface{}) int {
+		ra, _ := a.(*structures.Vector).AtD(1)
+		rb, _ := b.(*structures.Vector).AtD(1)
+		if ra > rb {
+			return 1
+		} else if ra == rb {
+			return 0
+		}
+		return -1
+	}
+
+	customizedTree = structures.NewBinaryTree(compare)
+	for _, num := range insertions {
+		customizedTree.Insert(structures.NewVector([]float64{float64(num), float64(0)}))
+	}
+	fmt.Println(customizedTree.String())
 	depth = customizedTree.Depth()
 	fmt.Println("the depth of the tree is " + strconv.Itoa(depth))
 }
