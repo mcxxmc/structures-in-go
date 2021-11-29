@@ -22,7 +22,7 @@ func main() {
 	insertions := []int{10, 5, 15, 3, 8, 20, 0, 24}
 
 	fmt.Println("The first tree")
-	bTree := structures.NewIntBinaryTree()
+	bTree := structures.NewBSTreeInt()
 	for _, num := range insertions {
 		bTree.Insert(num)
 	}
@@ -79,7 +79,7 @@ func main() {
 		return -1
 	}
 
-	customizedTree := structures.NewBinaryTree(compare)
+	customizedTree := structures.NewBSTree(compare)
 	for _, num := range insertions {
 		customizedTree.Insert(&Record{Val: num})
 	}
@@ -99,7 +99,7 @@ func main() {
 		return -1
 	}
 
-	customizedTree = structures.NewBinaryTree(compare)
+	customizedTree = structures.NewBSTree(compare)
 	for _, num := range insertions {
 		customizedTree.Insert(structures.NewVector([]float64{float64(num), float64(0)}))
 	}

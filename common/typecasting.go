@@ -37,8 +37,3 @@ func FixedMinLength(s string, n int) string {
 		return strings.Repeat(" ", diff1) + s + strings.Repeat(" ", diff2)
 	}
 }
-
-// FixedMinLengthDefault converts the string to a minimum default length by appending " " before and after
-func FixedMinLengthDefault(s string) string {
-	return FixedMinLength(s, DefaultStringLength)
-}

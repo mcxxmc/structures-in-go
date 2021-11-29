@@ -10,18 +10,16 @@ import (
 //
 // Root *Node
 //
-// Compare func(a, b interface{}) bool
+// compare func(a, b interface{}) bool
 //
-// Compare is the function for comparing different node values;
+// compare is the function for comparing different node values;
 // it should return 1 if a > b , 0 if a == b, -1 if a < b
 //
 // note that this BinarySearchTree does not perform type checking; please include any necessary type checking
-// in the customized Compare function
-//
-// also, the Compare function should never be changed after a tree is created
+// in the customized compare function
 type BinarySearchTree struct {
-	Root *Node
-	Compare func(a, b interface{}) int
+	Root    *Node
+	compare func(a, b interface{}) int
 }
 
 // Insert inserts a new val as a new node
@@ -33,7 +31,7 @@ func (bt *BinarySearchTree) Insert(val interface{}) {
 
 	cur := bt.Root
 	for {
-		if bt.Compare(cur.Val, val) == 1 {  // cur.Val > val
+		if bt.compare(cur.Val, val) == 1 { // cur.Val > val
 			if cur.Left == nil {
 				cur.Left = NewNode(val)
 				break
@@ -58,7 +56,7 @@ func (bt *BinarySearchTree) Search(val interface{}) (*Node, bool) {
 		if cur == nil {
 			break
 		}
-		c := bt.Compare(cur.Val, val)
+		c := bt.compare(cur.Val, val)
 		if c == 0 {
 			return cur, true
 		} else if c == 1 {  // cur.Val > val
@@ -86,7 +84,7 @@ func (bt *BinarySearchTree) Delete(val interface{}) bool {
 			break
 		}
 
-		c := bt.Compare(cur.Val, val)
+		c := bt.compare(cur.Val, val)
 
 		if c == 0 {
 			break
@@ -189,7 +187,7 @@ func (bt *BinarySearchTree) String() string {
 		s += strings.Repeat(" ", indentations[i][0])
 		switcher := false  // TODO: remove this; [i][1] and [1][2] is always same for i != depth - 1
 		for _, element := range layer {
-			s += common.FixedMinLengthDefault(common.CastString(element))  // TODO remove this fixedLength
+			s += common.FixedMinLength(common.CastString(element), common.DefaultStringLength)  // TODO remove this fixedLength
 			if switcher {
 				s += strings.Repeat(" ", indentations[i][2])
 				switcher = false
@@ -248,7 +246,7 @@ func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
 	}
 
 	queue1 := NewQueue() // nodes of the current level
-	queue1.Add(bt.Root)
+	queue1.Push(bt.Root)
 	queue2 := NewQueue() // nodes of the next level
 	ans := make([][]interface{}, 0)
 	cache := make([]interface{}, 0)
@@ -256,7 +254,7 @@ func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
 	hasRealValInThisLoop := false
 
 	for {
-		if queue1.IsEmpty() {
+		if !queue1.HasNext() {
 			if !hasRealValInThisLoop {
 				break
 			}
@@ -266,7 +264,7 @@ func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
 			ans = append(ans, tmp)
 			cache = cache[:0]  // clear the cache
 
-			if queue2.IsEmpty() {
+			if !queue2.HasNext() {
 				break
 			} else {
 				queue1 = queue2.Copy()
@@ -283,19 +281,19 @@ func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
 
 			if cur != nil {
 				if cur.Left != nil {
-					queue2.Add(cur.Left)
+					queue2.Push(cur.Left)
 				} else if replacement {
-					queue2.Add(DummyNode())
+					queue2.Push(DummyNode())
 				}
 
 				if cur.Right != nil {
-					queue2.Add(cur.Right)
+					queue2.Push(cur.Right)
 				} else if replacement {
-					queue2.Add(DummyNode())
+					queue2.Push(DummyNode())
 				}
 			} else {  // cur will be nil only if replacement == true
-				queue2.Add(DummyNode())
-				queue2.Add(DummyNode())
+				queue2.Push(DummyNode())
+				queue2.Push(DummyNode())
 			}
 		}
 	}
@@ -312,7 +310,7 @@ func (bt *BinarySearchTree) FlattenedValues(replacement bool) []interface{} {
 // Copy makes a deep copy of the tree
 func (bt *BinarySearchTree) Copy() *BinarySearchTree {
 	values := bt.FlattenedValues(false)
-	newTree := NewBinaryTree(bt.Compare)
+	newTree := NewBSTree(bt.compare)
 	for _, val := range values {
 		newTree.Insert(common.Copy(val))
 	}
@@ -323,10 +321,10 @@ func (bt *BinarySearchTree) Copy() *BinarySearchTree {
 // condense
 func (bt *BinarySearchTree) Rebuild() *BinarySearchTree {
 	values := bt.FlattenedValues(false)
-	sorter := common.NewSorter(bt.Compare)
+	sorter := common.NewSorter(bt.compare)
 	sorter.Sort(values)
 
-	newTree := NewBinaryTree(bt.Compare)
+	newTree := NewBSTree(bt.compare)
 
 	newValues := make([]interface{}, len(values))
 	curIndex := 0
@@ -351,12 +349,13 @@ func (bt *BinarySearchTree) Rebuild() *BinarySearchTree {
 	return newTree
 }
 
-func NewBinaryTree(compare func(a, b interface{}) int) *BinarySearchTree {
-	return &BinarySearchTree{Compare: compare}
+// NewBSTree returns a new BinarySearchTree
+func NewBSTree(compare func(a, b interface{}) int) *BinarySearchTree {
+	return &BinarySearchTree{compare: compare}
 }
 
-// NewIntBinaryTree returns a BinarySearchTree with int val and default compare method
-func NewIntBinaryTree() *BinarySearchTree {
+// NewBSTreeInt returns a BinarySearchTree with int val and default compare method
+func NewBSTreeInt() *BinarySearchTree {
 	compare := func(a, b interface{}) int {
 		if a.(int) > b.(int) {
 			return 1
@@ -365,5 +364,5 @@ func NewIntBinaryTree() *BinarySearchTree {
 		}
 		return -1
 	}
-	return NewBinaryTree(compare)
+	return NewBSTree(compare)
 }
