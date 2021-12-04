@@ -1,19 +1,28 @@
 package structures
 
 import (
-	"math"
 	"some-data-structures/common"
-	"strings"
 )
 
 // BinarySearchTree the binary search tree
 //
-// Root *Node
+// Attributes:
 //
-// compare func(a, b interface{}) bool
+//     Root *Node
+//
+//     compare func(a, b interface{}) bool
+//
+// .
 //
 // compare is the function for comparing different node values;
 // it should return 1 if a > b , 0 if a == b, -1 if a < b
+//
+// .
+//
+// the first input of the compare function should be the same type as the value of the tree node; the second input may have
+// variant types. A tricky compare method can relax the conditions for Search and Delete; see examples for details.
+//
+// .
 //
 // note that this BinarySearchTree does not perform type checking; please include any necessary type checking
 // in the customized compare function
@@ -49,8 +58,8 @@ func (bt *BinarySearchTree) Insert(val interface{}) {
 	}
 }
 
-// Search returns the corresponding node if the element exists in the tree
-func (bt *BinarySearchTree) Search(val interface{}) (*Node, bool) {
+// Search returns the value of the FIRST corresponding Node if that Node exists in the tree
+func (bt *BinarySearchTree) Search(val interface{}) (interface{}, bool) {
 	cur := bt.Root
 	for {
 		if cur == nil {
@@ -58,7 +67,7 @@ func (bt *BinarySearchTree) Search(val interface{}) (*Node, bool) {
 		}
 		c := bt.compare(cur.Val, val)
 		if c == 0 {
-			return cur, true
+			return cur.Val, true
 		} else if c == 1 {  // cur.Val > val
 			cur = cur.Left
 		} else {
@@ -68,12 +77,10 @@ func (bt *BinarySearchTree) Search(val interface{}) (*Node, bool) {
 	return nil, false
 }
 
-// Delete deletes the element if it exists; note that it only deletes 1 element at once
+// Delete deletes the node if it exists; note that it only deletes 1 node at once
 //
-// val interface{} should be exactly same with the element that you want to delete
-//
-// TODO: make a version that takes in a function for comparing e.g., f(a, b interface) bool {return a.(int) == b.(int)}
-func (bt *BinarySearchTree) Delete(val interface{}) bool {
+// returns the val of the deleted node and a boolean value indicating if the deletion is successful
+func (bt *BinarySearchTree) Delete(val interface{}) (interface{}, bool) {
 	parent := DummyNode()
 	isLeftChild := false
 	cur := bt.Root
@@ -101,7 +108,7 @@ func (bt *BinarySearchTree) Delete(val interface{}) bool {
 
 	// if the element is not found
 	if cur == nil {
-		return false
+		return nil, false
 	}
 
 	// if the node to delete does not have a left child (it may also do not have a right child)
@@ -170,66 +177,7 @@ func (bt *BinarySearchTree) Delete(val interface{}) bool {
 		chosenLeaveNode.Right = cur.Right
 	}
 
-	return true
-}
-
-// String stringify
-//
-// TODO: better visualization (include "/" and "\")
-func (bt *BinarySearchTree) String() string {
-	values := bt.Values(true)
-	depth := len(values)
-	indentations := getIndentation(depth, common.DefaultStringLength)
-
-	s := ""
-
-	for i, layer := range values {
-		s += strings.Repeat(" ", indentations[i][0])
-		switcher := false  // TODO: remove this; [i][1] and [1][2] is always same for i != depth - 1
-		for _, element := range layer {
-			s += common.FixedMinLength(common.CastString(element), common.DefaultStringLength)  // TODO remove this fixedLength
-			if switcher {
-				s += strings.Repeat(" ", indentations[i][2])
-				switcher = false
-			} else {
-				s += strings.Repeat(" ", indentations[i][1])
-				switcher = true
-			}
-		}
-		s += "\n"
-	}
-
-	return s
-}
-
-// used for calculating indentations for visualizing a bst
-func getIndentation(depth int, stringLength int) [][]int {
-	if depth < 1 {
-		return make([][]int, 0)
-	}
-	totalDisplayLength := (3 + stringLength) * int(math.Pow(float64(2), float64(depth - 1))) - 4
-
-	ans := make([][]int, depth)
-	for i := depth - 1; i >= 0; i -- {
-		tmp := make([]int, 3)
-		if i == depth - 1 {
-			tmp[0] = 0
-			tmp[1] = 2
-			tmp[2] = 4
-		} else if i == 0 {
-			tmp[0] = (totalDisplayLength - stringLength) / 2
-			tmp[1] = 0
-			tmp[2] = 0
-		} else {
-			tmp[2] = ans[i + 1][1] + ans[i + 1][2] + stringLength
-			tmp[1] = tmp[2]
-			numOfNodes := int(math.Pow(float64(2), float64(i)))
-			tmp[0] = (totalDisplayLength - (numOfNodes * tmp[1] / 2) - ((numOfNodes / 2 - 1) * tmp[2]) -
-				(stringLength * numOfNodes)) / 2
-		}
-		ans[i] = tmp
-	}
-	return ans
+	return cur.Val, true
 }
 
 // Depth returns the depth of the tree (using dfs?)
@@ -239,8 +187,8 @@ func (bt *BinarySearchTree) Depth() int {
 
 // Values returns all the values in the tree (in a bfs manner)
 //
-// replacement: if set to true, nil will be used to fill the empty space of non-exist child nodes
-func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
+// fill: if set to true, nil will be used to fill the empty space of non-exist child nodes
+func (bt *BinarySearchTree) Values(fill bool) [][]interface{} {
 	if bt.Root == nil {  // when the tree is empty
 		return make([][]interface{}, 0)
 	}
@@ -251,7 +199,7 @@ func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
 	ans := make([][]interface{}, 0)
 	cache := make([]interface{}, 0)
 
-	hasRealValInThisLoop := false
+	hasRealValInThisLoop := false  // TODO: change to hasRealValInNextLoop
 
 	for {
 		if !queue1.HasNext() {
@@ -282,16 +230,16 @@ func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
 			if cur != nil {
 				if cur.Left != nil {
 					queue2.Push(cur.Left)
-				} else if replacement {
+				} else if fill {
 					queue2.Push(DummyNode())
 				}
 
 				if cur.Right != nil {
 					queue2.Push(cur.Right)
-				} else if replacement {
+				} else if fill {
 					queue2.Push(DummyNode())
 				}
-			} else {  // cur will be nil only if replacement == true
+			} else {  // cur will be nil only if fill == true
 				queue2.Push(DummyNode())
 				queue2.Push(DummyNode())
 			}
@@ -302,9 +250,9 @@ func (bt *BinarySearchTree) Values(replacement bool) [][]interface{} {
 
 // FlattenedValues returns the values in a flattened 1d slice.
 //
-// replacement: if set to true, nil will be used to fill the empty space of non-exist child nodes
-func (bt *BinarySearchTree) FlattenedValues(replacement bool) []interface{} {
-	return common.Flatten2D(bt.Values(replacement))
+// fill: if set to true, nil will be used to fill the empty space of non-exist child nodes
+func (bt *BinarySearchTree) FlattenedValues(fill bool) []interface{} {
+	return common.Flatten2D(bt.Values(fill))
 }
 
 // Copy makes a deep copy of the tree

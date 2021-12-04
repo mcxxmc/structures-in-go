@@ -14,6 +14,15 @@ func (st *Stack) HasNext() bool {
 	return len(st.stack) != 0
 }
 
+// Pop pops out the element on the top of the stack
+//
+// e.g.,
+//
+// if stack.HasNext() {
+//
+//     stack.Pop()
+//
+// }
 func (st *Stack) Pop() interface{} {
 	v := st.stack[0]
 	st.stack = st.stack[1:]

@@ -18,7 +18,7 @@ func (bit *BinaryIndexedTree) Update(i int, v float64) {
 	}
 }
 
-// Query returns the prefix sum up to the element at index i
+// Query returns the prefix sum up to the element at index i (inclusive)
 func (bit *BinaryIndexedTree) Query(i int) float64 {
 	ans := float64(0)
 	for t := i + 1; t > 0; t -= bit.lowbit(t) {
