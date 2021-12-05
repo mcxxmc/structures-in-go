@@ -199,49 +199,48 @@ func (bt *BinarySearchTree) Values(fill bool) [][]interface{} {
 	ans := make([][]interface{}, 0)
 	cache := make([]interface{}, 0)
 
-	hasRealValInThisLoop := false  // TODO: change to hasRealValInNextLoop
+	hasRealValInNextLoop := false
 
 	for {
 		if !queue1.HasNext() {
-			if !hasRealValInThisLoop {
-				break
-			}
-
 			tmp := make([]interface{}, len(cache))
 			copy(tmp, cache)
 			ans = append(ans, tmp)
 			cache = cache[:0]  // clear the cache
+
+			if !hasRealValInNextLoop {
+				break
+			}
 
 			if !queue2.HasNext() {
 				break
 			} else {
 				queue1 = queue2.Copy()
 				queue2.Reset()
-				hasRealValInThisLoop = false
+				hasRealValInNextLoop = false
 			}
 		} else {
 			cur := queue1.Pop().(*Node)
-			if !hasRealValInThisLoop && cur.hasVal() {
-				hasRealValInThisLoop = true
-			}
-
-			cache = append(cache, cur.Val)
 
 			if cur != nil {
+				cache = append(cache, cur.Val)
 				if cur.Left != nil {
 					queue2.Push(cur.Left)
+					hasRealValInNextLoop = true
 				} else if fill {
-					queue2.Push(DummyNode())
+					queue2.Push(nil)
 				}
 
 				if cur.Right != nil {
 					queue2.Push(cur.Right)
+					hasRealValInNextLoop = true
 				} else if fill {
-					queue2.Push(DummyNode())
+					queue2.Push(nil)
 				}
-			} else {  // cur will be nil only if fill == true
-				queue2.Push(DummyNode())
-				queue2.Push(DummyNode())
+			} else if fill {
+				cache = append(cache, nil)
+				queue2.Push(nil)
+				queue2.Push(nil)
 			}
 		}
 	}
