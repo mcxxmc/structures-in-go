@@ -5,5 +5,13 @@ There structures implements common.Template interface and can be used as Val:
 For all my settings,
     Compare is the function for comparing different node values;
     it should return 1 if a > b , 0 if a == b, -1 if a < b
+    a should always be an element from the struct other than user input
+
+    The first input of the compare function should be the same type as the value of the tree node; the second input may have
+    variant types. A tricky compare method can relax the conditions for Search and Delete; see examples for details.
 
 Copy() for interfaces may be changed; copy() function does not guarantee a deep copy for non-basic elements in a slice.
+
+
+IMPORTANT: the below achieves better memory allocation by e.g., limiting the use of append():
+    binary-heap

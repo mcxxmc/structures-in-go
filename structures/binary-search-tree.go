@@ -4,13 +4,15 @@ import (
 	"some-data-structures/common"
 )
 
-// BinarySearchTree the binary search tree
+// BinarySearchTree
+//
+// The binary search tree.
 //
 // Attributes:
 //
-//     Root *Node
+//		Root *Node
 //
-//     compare func(a, b interface{}) bool
+//		compare func(a, b interface{}) bool
 //
 // .
 //
@@ -19,28 +21,28 @@ import (
 //
 // .
 //
-// the first input of the compare function should be the same type as the value of the tree node; the second input may have
+// The first input of the compare function should be the same type as the value of the tree node; the second input may have
 // variant types. A tricky compare method can relax the conditions for Search and Delete; see examples for details.
 //
 // .
 //
-// note that this BinarySearchTree does not perform type checking; please include any necessary type checking
+// Note that this BinarySearchTree does not perform type checking; please include any necessary type checking
 // in the customized compare function
 type BinarySearchTree struct {
 	Root    *Node
 	compare func(a, b interface{}) int
 }
 
-// Insert inserts a new val as a new node
-func (bt *BinarySearchTree) Insert(val interface{}) {
+func (bt *BinarySearchTree) insert(val interface{}, safe bool) bool {
 	if bt.Root == nil {
 		bt.Root = NewNode(val)
-		return
+		return true
 	}
 
 	cur := bt.Root
+	c := bt.compare(cur.Val, val)
 	for {
-		if bt.compare(cur.Val, val) == 1 { // cur.Val > val
+		if c == 1 { // cur.Val > val
 			if cur.Left == nil {
 				cur.Left = NewNode(val)
 				break
@@ -48,6 +50,9 @@ func (bt *BinarySearchTree) Insert(val interface{}) {
 				cur = cur.Left
 			}
 		} else {
+			if c == 0 && safe {
+				return false
+			}
 			if cur.Right == nil {
 				cur.Right = NewNode(val)
 				break
@@ -56,6 +61,19 @@ func (bt *BinarySearchTree) Insert(val interface{}) {
 			}
 		}
 	}
+	return true
+}
+
+// Insert inserts a new val as a new node
+//
+// Does not insert if the val already exists in the tree.
+func (bt *BinarySearchTree) Insert(val interface{}) bool {
+	return bt.insert(val, true)
+}
+
+// UnsafeInsert inserts a new val as a new node and allows the same val to be inserted for multiple times
+func (bt *BinarySearchTree) UnsafeInsert(val interface{}) {
+	bt.insert(val, false)
 }
 
 // Search returns the value of the FIRST corresponding Node if that Node exists in the tree
@@ -180,8 +198,8 @@ func (bt *BinarySearchTree) Delete(val interface{}) (interface{}, bool) {
 	return cur.Val, true
 }
 
-// Depth returns the depth of the tree (using dfs?)
-func (bt *BinarySearchTree) Depth() int {
+// Height returns the height of the tree
+func (bt *BinarySearchTree) Height() int {
 	return len(bt.Values(false))
 }
 

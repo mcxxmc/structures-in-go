@@ -14,8 +14,8 @@ func TestBST(t *testing.T)  {
 	for _, num := range insertions {
 		bTree.Insert(num)
 	}
-	if depth := bTree.Depth(); depth != 4 {
-		t.Errorf("BST1; expected depth 4, got %d", depth)
+	if h := bTree.Height(); h != 4 {
+		t.Errorf("BST1; expected height 4, got %d", h)
 	}
 	vals1 := bTree.Values(false)
 	correct1 := [][]int{{10}, {5, 15}, {3, 8, 20}, {0, 24}}
@@ -36,14 +36,14 @@ func TestBST(t *testing.T)  {
 
 	// 2
 	copied := bTree.Copy()
-	if depth := copied.Depth(); depth != 4 {
-		t.Errorf("BST2; expected depth 4, got %d", depth)
+	if h := copied.Height(); h != 4 {
+		t.Errorf("BST2; expected height 4, got %d", h)
 	}
 
 	// 3 rebuild a tree
 	newTree := bTree.Rebuild()
-	if depth := newTree.Depth(); depth != 4 {
-		t.Errorf("BST3; expected depth 4, got %d", depth)
+	if h := newTree.Height(); h != 4 {
+		t.Errorf("BST3; expected height 4, got %d", h)
 	}
 	vals1 = newTree.Values(false)
 	correct1 = [][]int{{8}, {3, 15}, {0, 5, 10, 20}, {24}}
@@ -67,8 +67,8 @@ func TestBST(t *testing.T)  {
 		}
 	}
 	newTree.Delete(20)
-	if depth := newTree.Depth(); depth != 3 {
-		t.Errorf("BST4.2; expected depth 3, got %d", depth)
+	if h := newTree.Height(); h != 3 {
+		t.Errorf("BST4.2; expected height 3, got %d", h)
 	}
 	vals1 = newTree.Values(false)
 	correct1 = [][]int{{5}, {3, 15}, {0, 10, 24}}
@@ -123,8 +123,8 @@ func TestBST(t *testing.T)  {
 	for _, num := range insertions {
 		customizedTree.Insert(structures.NewVector([]float64{float64(num), float64(0)}))
 	}
-	if depth := customizedTree.Depth(); depth != 4 {
-		t.Errorf("BST5; expected depth 4, got %d", depth)
+	if h := customizedTree.Height(); h != 4 {
+		t.Errorf("BST5; expected height 4, got %d", h)
 	}
 	vals1 = customizedTree.Values(false)
 	correct3 := [][]float64{{10.0}, {5.0, 15.0}, {3.0, 8.0, 20.0}, {0.0, 24.0}}
