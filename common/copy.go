@@ -2,7 +2,7 @@ package common
 
 // Copy tries to make a deep copy of the input
 //
-// currently, only supports basic types
+// currently, only supports basic types  //TODO: more cases
 func Copy(val interface{}) interface{} {
 	switch val.(type) {
 	case int:

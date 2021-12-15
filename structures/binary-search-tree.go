@@ -10,7 +10,7 @@ import (
 //
 // Attributes:
 //
-//		Root *Node
+//		Root *TreeNode
 //
 //		compare func(a, b interface{}) bool
 //
@@ -29,13 +29,13 @@ import (
 // Note that this BinarySearchTree does not perform type checking; please include any necessary type checking
 // in the customized compare function
 type BinarySearchTree struct {
-	Root    *Node
+	Root    *TreeNode
 	compare func(a, b interface{}) int
 }
 
 func (bt *BinarySearchTree) insert(val interface{}, safe bool) bool {
 	if bt.Root == nil {
-		bt.Root = NewNode(val)
+		bt.Root = NewTreeNode(val)
 		return true
 	}
 
@@ -44,7 +44,7 @@ func (bt *BinarySearchTree) insert(val interface{}, safe bool) bool {
 	for {
 		if c == 1 { // cur.Val > val
 			if cur.Left == nil {
-				cur.Left = NewNode(val)
+				cur.Left = NewTreeNode(val)
 				break
 			} else {
 				cur = cur.Left
@@ -54,7 +54,7 @@ func (bt *BinarySearchTree) insert(val interface{}, safe bool) bool {
 				return false
 			}
 			if cur.Right == nil {
-				cur.Right = NewNode(val)
+				cur.Right = NewTreeNode(val)
 				break
 			} else {
 				cur = cur.Right
@@ -76,7 +76,7 @@ func (bt *BinarySearchTree) UnsafeInsert(val interface{}) {
 	bt.insert(val, false)
 }
 
-// Search returns the value of the FIRST corresponding Node if that Node exists in the tree
+// Search returns the value of the FIRST corresponding TreeNode if that TreeNode exists in the tree
 func (bt *BinarySearchTree) Search(val interface{}) (interface{}, bool) {
 	cur := bt.Root
 	for {
@@ -99,7 +99,7 @@ func (bt *BinarySearchTree) Search(val interface{}) (interface{}, bool) {
 //
 // returns the val of the deleted node and a boolean value indicating if the deletion is successful
 func (bt *BinarySearchTree) Delete(val interface{}) (interface{}, bool) {
-	parent := DummyNode()
+	parent := DummyTreeNode()
 	isLeftChild := false
 	cur := bt.Root
 
@@ -234,11 +234,11 @@ func (bt *BinarySearchTree) Values(fill bool) [][]interface{} {
 				break
 			} else {
 				queue1 = queue2.Copy()
-				queue2.Reset()
+				queue2.Empty()
 				hasRealValInNextLoop = false
 			}
 		} else {
-			cur := queue1.Pop().(*Node)
+			cur := queue1.Pop().(*TreeNode)
 
 			if cur != nil {
 				cache = append(cache, cur.Val)

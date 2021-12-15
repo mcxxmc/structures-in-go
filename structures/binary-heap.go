@@ -2,18 +2,12 @@ package structures
 
 import (
 	"errors"
-	"reflect"
 	"some-data-structures/common"
 )
 
-const defaultSize int = 50
-const errorNoElement string = "no more element in the binary heap"
-const errorKeyValue string = "the value of the key fails the compare condition"
-const errorInvalidIndex string = "invalid index"
-
 // BinaryHeap
 //
-// The binary heap structure. Please use NewBinaryHeap() or NewEmptyBinaryHeap() as the safe constructor.
+// The binary heap structure. Please use NewBinaryHeapWithValues() or NewBinaryHeap() as the safe constructor.
 //
 // Attributes:
 //
@@ -24,13 +18,13 @@ const errorInvalidIndex string = "invalid index"
 // compare is the function for comparing different node values;
 // it should return 1 if a > b , 0 if a == b, -1 if a < b
 type BinaryHeap struct {
-	Heap []interface{}
+	Heap    []interface{}
 	compare func(a, b interface{}) int
-	i int  // the rightmost boundary (inclusive)
+	top     int // the rightmost boundary (inclusive)
 }
 
 func (bh *BinaryHeap) Size() int {
-	return bh.i
+	return bh.top
 }
 
 func (bh *BinaryHeap) swap(i, j int) {
@@ -41,17 +35,17 @@ func (bh *BinaryHeap) swap(i, j int) {
 //
 // Parameters:
 //
-// i: The index of the current root node of the subtree.
+// top: The index of the current root node of the subtree.
 func (bh *BinaryHeap) maxHeapify(i int) {
 	left := i << 1
 	right := left + 1
 	var largest int
-	if left <= bh.i && bh.compare(bh.Heap[left], bh.Heap[i]) == 1 {
+	if left <= bh.top && bh.compare(bh.Heap[left], bh.Heap[i]) == 1 {
 		largest = left
 	} else {
 		largest = i
 	}
-	if right <= bh.i && bh.compare(bh.Heap[right], bh.Heap[largest]) == 1 {
+	if right <= bh.top && bh.compare(bh.Heap[right], bh.Heap[largest]) == 1 {
 		largest = right
 	}
 	if largest != i {
@@ -62,7 +56,7 @@ func (bh *BinaryHeap) maxHeapify(i int) {
 
 // sorts the heap and turns it into a binary heap.
 func (bh *BinaryHeap) build() {
-	for i := bh.i / 2; i > 0; i -- {
+	for i := bh.top / 2; i > 0; i -- {
 		bh.maxHeapify(i)
 	}
 }
@@ -72,17 +66,17 @@ func (bh *BinaryHeap) build() {
 //
 // It modifies the BinaryHeap object itself.
 func (bh *BinaryHeap) Heapsort() {
-	for i := bh.i; i > 1; i -- {
+	for i := bh.top; i > 1; i -- {
 		bh.swap(i, 1)
-		bh.i --
+		bh.top--
 		bh.maxHeapify(1)
 	}
-	bh.i = len(bh.Heap) - 1  // reset
+	bh.top = len(bh.Heap) - 1 // reset
 }
 
 // HeapMaximum returns the maximum (or minimum, depending on the compare method) element from the binary heap
 func (bh *BinaryHeap) HeapMaximum() (interface{}, error) {
-	if bh.i < 1 {
+	if bh.top < 1 {
 		return nil, errors.New(errorNoElement)
 	}
 	return bh.Heap[1], nil
@@ -93,19 +87,19 @@ func (bh *BinaryHeap) HeapMaximum() (interface{}, error) {
 //
 // This operation will modify the binary heap.
 func (bh *BinaryHeap) ExtractHeapMaximum() (interface{}, error) {
-	if bh.i < 1 {
+	if bh.top < 1 {
 		return nil, errors.New(errorNoElement)
 	}
-	max := bh.Heap[1]  //todo: consider making a deep copy here
-	bh.Heap[1] = bh.Heap[bh.i]  // so the old bh.Heap[1] is no longer in the binary heap
-	bh.i --
+	max := bh.Heap[1]            //todo: consider making a deep copy here
+	bh.Heap[1] = bh.Heap[bh.top] // so the old bh.Heap[1] is no longer in the binary heap
+	bh.top--
 	bh.maxHeapify(1)
 	return max, nil
 }
 
-// updates the key at position i
+// updates the key at position top
 func (bh *BinaryHeap) updateKey(i int, key interface{}) error {
-	if i > bh.i {
+	if i > bh.top {
 		return errors.New(errorInvalidIndex)
 	}
 	if bh.compare(bh.Heap[i], key) == 1 {
@@ -121,41 +115,41 @@ func (bh *BinaryHeap) updateKey(i int, key interface{}) error {
 
 // Insert inserts a key to the proper position in the binary heap.
 func (bh *BinaryHeap) Insert(key interface{}) error {
-	bh.i ++
-	if bh.i >= len(bh.Heap) {  // needs to extend
+	bh.top++
+	if bh.top >= len(bh.Heap) { // needs to extend
 		more := make([]interface{}, defaultSize)
 		bh.Heap = append(bh.Heap, more...)
 	}
-	bh.Heap[bh.i] = key
-	return bh.updateKey(bh.i, key)
+	bh.Heap[bh.top] = key
+	return bh.updateKey(bh.top, key)
 }
 
 // Copy makes a deep copy.
 func (bh *BinaryHeap) Copy() *BinaryHeap {
-	return &BinaryHeap{Heap: common.CopyInterfaces(bh.Heap), compare: bh.compare, i: bh.i}
+	return &BinaryHeap{Heap: common.CopyInterfaces(bh.Heap), compare: bh.compare, top: bh.top}
 }
 
-// NewEmptyBinaryHeap returns a new BinaryHeap object with no initial values.
+// NewBinaryHeap returns a new BinaryHeap object with no initial values.
 //
 // compare is the function for comparing different node values;
 // it should return 1 if a > b , 0 if a == b, -1 if a < b.
-func NewEmptyBinaryHeap(compare func(a, b interface{}) int) *BinaryHeap {
-	return &BinaryHeap{Heap: make([]interface{}, defaultSize), compare: compare, i: 0}
+func NewBinaryHeap(compare func(a, b interface{}) int) *BinaryHeap {
+	return &BinaryHeap{Heap: make([]interface{}, defaultSize), compare: compare, top: 0}
 }
 
-// NewBinaryHeap returns a new BinaryHeap object with initial values.
+// NewBinaryHeapWithValues returns a new BinaryHeap object with initial values.
 //
 // values must be a slice or an array.
 //
 // compare is the function for comparing different node values;
 // it should return 1 if a > b , 0 if a == b, -1 if a < b.
-func NewBinaryHeap(values interface{}, compare func(a, b interface{}) int) (*BinaryHeap, error) {
-	if rt := reflect.TypeOf(values); rt.Kind() != reflect.Slice && rt.Kind() != reflect.Array {
-		err := errors.New("error in creating a BinaryHeap object: values should be a slice or array")
+func NewBinaryHeapWithValues(values interface{}, compare func(a, b interface{}) int) (*BinaryHeap, error) {
+	tmp, err := common.ToInterfaces(values)
+	if err != nil {
 		return nil, err
 	}
-	cpy := append([]interface{}{0}, common.Copy(values).([]interface{})...)
-	bh := &BinaryHeap{Heap: cpy, compare: compare, i: len(cpy) - 1}
+	newValues := append([]interface{}{0}, tmp...)
+	bh := &BinaryHeap{Heap: newValues, compare: compare, top: len(newValues) - 1}
 	bh.build()
 	return bh, nil
 }

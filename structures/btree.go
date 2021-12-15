@@ -8,7 +8,7 @@ import "some-data-structures/common"
 //
 // Attributes:
 //
-//		Root *Node
+//		Root *TreeNode
 //
 //		t int
 //

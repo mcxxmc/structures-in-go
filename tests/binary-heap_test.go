@@ -19,7 +19,7 @@ func TestBinaryHeap(t *testing.T) {
 	}
 
 	// 1
-	bh, err := structures.NewBinaryHeap(testSlice, compare)
+	bh, err := structures.NewBinaryHeapWithValues(testSlice, compare)
 	if err != nil {
 		t.Error(err)
 	}

@@ -11,14 +11,14 @@ func (bit *BinaryIndexedTree) lowbit(x int) int {
 	return x & (-x)
 }
 
-// Update updates / increases the value for the element at index i
+// Update updates / increases the value for the element at index top
 func (bit *BinaryIndexedTree) Update(i int, v float64) {
 	for t := i + 1; t < len(bit.values); t += bit.lowbit(t) {
 		bit.values[t] += v
 	}
 }
 
-// Query returns the prefix sum up to the element at index i (inclusive)
+// Query returns the prefix sum up to the element at index top (inclusive)
 func (bit *BinaryIndexedTree) Query(i int) float64 {
 	ans := float64(0)
 	for t := i + 1; t > 0; t -= bit.lowbit(t) {
@@ -27,7 +27,7 @@ func (bit *BinaryIndexedTree) Query(i int) float64 {
 	return ans
 }
 
-// Range returns the prefix sum from the element at index i (inclusive) to the element at index j (inclusive)
+// Range returns the prefix sum from the element at index top (inclusive) to the element at index j (inclusive)
 func (bit *BinaryIndexedTree) Range(i, j int) float64 {
 	return bit.Query(j) - bit.Query(i - 1)
 }

@@ -1,67 +1,77 @@
 package structures
 
-import "some-data-structures/common"
+import (
+	"some-data-structures/common"
+)
 
-// Queue a queue that first in first out
+// Queue
 //
-// IMPORTANT: use NewQueue() to construct a new Queue object!
+// The FIFO queue structure. Please use NewQueue() or NewQueueWithValues() as the safe constructor.
 type Queue struct {
 	queue []interface{}
+	head int  // points to the head of the queue
+	tail int  // points to the first empty slot after the end of the queue
 }
 
 func (q *Queue) Len() int {
-	return len(q.queue)
+	return q.tail - q.head
 }
 
 func (q *Queue) HasNext() bool {
-	return len(q.queue) != 0
+	return q.tail > q.head
 }
 
-// Push adds a new element to the end of the queue
-func (q *Queue) Push(val interface{}) {
-	q.queue = append(q.queue, val)
+// Push pushes v into the queue.
+func (q *Queue) Push(v interface{}) {
+	if q.tail == len(q.queue) {
+		q.queue = append(q.queue, make([]interface{}, defaultSize)...)
+	}
+	q.queue[q.tail] = v
+	q.tail ++
 }
 
-// Pop pops out and returns the first element of the queue
+// Pop pops out and returns the first element of the queue.
 //
-// will return nil if the queue is empty; however, a nil does not mean there is no more values in this queue,
-// since you can push nil as a value into this queue
+// Please check if the queue is empty before using this method.
 //
-// a safe way to check if the queue is empty is using HasNext
+// e.g.,
+//
+// if queue.HasNext() { queue.Pop() }
 func (q *Queue) Pop() interface{} {
-	if len(q.queue) == 0 {
+	if q.tail <= q.head {
 		return nil
 	}
-
-	pop := q.queue[0]
-	q.queue = q.queue[1:]
-
+	pop := q.queue[q.head]
+	q.head ++
+	if q.head >= defaultSize {  // resize to save memory
+		q.queue = q.queue[q.head:]
+		q.tail -= q.head
+		q.head = 0
+	}
 	return pop
 }
 
-// Reset completely resets the queue
+// Values returns the values in the queue.
 //
-// Warning: it will empty the queue
-func (q *Queue) Reset() {
-	q.queue = make([]interface{}, 0)
+// This is NOT a safe method, and you should avoid using it.
+func (q *Queue) Values() []interface{} {
+	return q.queue
+}
+
+// Empty completely empties the queue.
+//
+// Note: it does not empty the queue physically; if you want to release memory, please create a new Queue object instead.
+func (q *Queue) Empty() {
+	q.head = 0
+	q.tail = 0
 }
 
 // Copy makes a deep copy of the queue
 func (q *Queue) Copy() *Queue {
-	cpy := &Queue{queue: make([]interface{}, len(q.queue))}
-	for i := 0; i < len(q.queue); i ++ {
-		cpy.queue[i] = common.Copy(q.queue[i])
-	}
-	return cpy
+	tmp := common.CopyInterfaces(q.queue)
+	return &Queue{queue: tmp, head: q.head, tail: q.tail}
 }
 
 func NewQueue() *Queue {
-	return &Queue{queue: make([]interface{}, 0)}
-}
-
-// NewQueueWithValues creates a Queue with initial values
-//
-// WARNING: modifying the values will also modify the Queue
-func NewQueueWithValues(values []interface{}) *Queue {
-	return &Queue{queue: values}
+	return &Queue{queue: make([]interface{}, defaultSize), head: 0, tail: 0}
 }

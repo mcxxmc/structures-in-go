@@ -2,32 +2,58 @@ package tests
 
 import (
 	"some-data-structures/structures"
-	"sort"
 	"testing"
 )
 
-func TestPriorityQ(t *testing.T) {
-	nums := []int{9, 8, 7, 1, 14, 12, -8, 10, 6, 5}
-	compare := func(a, b interface{}) int {
-		if a.(int) > b.(int) {
-			return 1
+func TestQueue(t *testing.T)  {
+	nums := make([]int, 100)
+	for i := 0; i < 100; i ++ {
+		nums[i] = i
+	}
+
+	// 1
+	q := structures.NewQueue()
+	for i := 0; i < 100; i ++ {
+		q.Push(nums[i])
+	}
+	if q.Len() != 100 {
+		t.Errorf("TestQueue1: wrong queue size")
+	}
+	q = q.Copy()
+	for i := 0; i < 100; i ++ {
+		tmp := q.Pop().(int)
+		if tmp != nums[i] {
+			t.Errorf("TestQueue1: wrong pop")
 		}
-		return 0
 	}
-	pq := structures.NewPriorityQ(compare)
-	for _, num := range nums {
-		pq.Push(num)
+	if q.HasNext() || q.Len() != 0 {
+		t.Errorf("TestQueue1.2: wrong queue size")
 	}
-	if l := pq.Len(); l != len(nums) {
-		t.Errorf("expected priority length %d, got %d", len(nums), l)
+
+	// 2
+	q.Empty()
+	if q.HasNext() || q.Len() != 0 {
+		t.Errorf("TestQueue2: wrong queue size")
 	}
-	sort.Ints(nums)
-	for i := 0; i < len(nums); i ++ {
-		if tmp := pq.Pop().(int); nums[i] != tmp {
-			t.Errorf("expected %d th element %d, but got %d", i, nums[i], tmp)
+	for i := 0; i < 50; i ++ {
+		q.Push(nums[i])
+	}
+	for i := 0; i < 50; i ++ {
+		tmp := q.Pop()
+		if tmp != nums[i] {
+			t.Errorf("TestQueue2.1: wrong pop")
 		}
 	}
-	if l := pq.Len(); l != 0 {
-		t.Errorf("expected priority length 0, got %d", l)
+	for i := 50; i < 100; i ++ {
+		q.Push(nums[i])
+	}
+	for i := 50; i < 100; i ++ {
+		tmp := q.Pop()
+		if tmp != nums[i] {
+			t.Errorf("TestQueue2.2: wrong pop")
+		}
+	}
+	if q.HasNext() || q.Len() != 0 {
+		t.Errorf("TestQueue2.2: wrong queue size")
 	}
 }

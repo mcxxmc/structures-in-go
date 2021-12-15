@@ -15,10 +15,10 @@ func TestStack(t *testing.T) {
 		t.Errorf("expected length 4, but got %d", l)
 	}
 	stk2 := stk1.Copy()
-	if p := stk2.Pop(); p != 4 {
+	if p := stk2.Pop(); p.(int) != 4 {
 		t.Errorf("expected 4, but got %d", p)
 	}
-	stk2.Reset()
+	stk2.Empty()
 	if l := stk2.Len(); l != 0 {
 		t.Errorf("expected length 0, but got %d", l)
 	}

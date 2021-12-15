@@ -1,60 +1,34 @@
 package structures
 
-// Node the node
+// TreeNode
+//
+// The basic tree node.
+//
+// Attributes:
 //
 // Val interface{}
 //
-// Left *Node  the smaller (or equal) left child
+// Left *TreeNode  the smaller (or equal) left child
 //
-// Right *Node  the bigger right child
-type Node struct {
+// Right *TreeNode  the bigger right child
+type TreeNode struct {
 	Val interface{}
-	Left *Node
-	Right *Node
+	Left *TreeNode
+	Right *TreeNode
 }
 
 // returns false if the Val is nil
-func (node *Node) hasVal() bool {
+func (node *TreeNode) hasVal() bool {
 	return node.Val != nil
 }
 
-// DummyNode returns a dummy node with val as nil
-func DummyNode() *Node {
-	return &Node{Val: nil}
+// DummyTreeNode returns a dummy tree node with val as nil
+func DummyTreeNode() *TreeNode {
+	return &TreeNode{Val: nil}
 }
 
-func NewNode(val interface{}) *Node {
-	return &Node{Val: val}
-}
-
-// BiNode the node with 2 direction
-//
-// Val interface{}
-//
-// Parent *BiNode the parent node
-//
-// Left *BiNode  the smaller (or equal) left child
-//
-// Right *BiNode  the bigger right child
-type BiNode struct {
-	Val interface{}
-	Parent *BiNode
-	Left *BiNode
-	Right *BiNode
-}
-
-// returns false if the Val is nil
-func (node *BiNode) hasVal() bool {
-	return node.Val != nil
-}
-
-// DummyBiNode returns a dummy node with val as nil
-func DummyBiNode() *Node {
-	return &Node{Val: nil}
-}
-
-func NewBiNode(val interface{}) *BiNode {
-	return &BiNode{Val: val}
+func NewTreeNode(val interface{}) *TreeNode {
+	return &TreeNode{Val: val}
 }
 
 // BTreeNode The node used as the internal node & the leaf node for B tree
@@ -77,4 +51,53 @@ type BTreeNode struct {
 // Number of children of a node is equal to the number of keys in it plus 1.
 func NewBTreeNode(t int) *BTreeNode {
 	return &BTreeNode{Values: make([]interface{}, 2 * t - 1), Children: make([]*BTreeNode, 2 * t)}
+}
+
+// Node
+//
+// The basic node.
+//
+// Attributes:
+//
+// Val interface{}
+//
+// Next *BiNode  the child node
+type Node struct {
+	Val interface{}
+	Next *Node
+}
+
+// DummyNode returns a dummy node with val as nil
+func DummyNode() *Node {
+	return &Node{Val: nil}
+}
+
+func NewNode(val interface{}) *Node {
+	return &Node{Val: val}
+}
+
+// BiNode
+//
+// The bi-direction node.
+//
+// Attributes:
+//
+// Val interface{}
+//
+// Prev *BiNode the parent node
+//
+// Next *BiNode  the child node
+type BiNode struct {
+	Val interface{}
+	Prev *BiNode
+	Next *BiNode
+}
+
+// DummyBiNode returns a dummy node with val as nil
+func DummyBiNode() *BiNode {
+	return &BiNode{Val: nil}
+}
+
+func NewBiNode(val interface{}) *BiNode {
+	return &BiNode{Val: val}
 }
