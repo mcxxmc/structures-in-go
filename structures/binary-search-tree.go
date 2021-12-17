@@ -1,9 +1,5 @@
 package structures
 
-import (
-	"some-data-structures/common"
-)
-
 // BinarySearchTree
 //
 // The binary search tree.
@@ -17,7 +13,7 @@ import (
 // .
 //
 // compare is the function for comparing different node values;
-// it should return 1 if a > b , 0 if a == b, -1 if a < b
+// it should return 1 if a > b , 0 if a == b, -1 if a < b.
 //
 // .
 //
@@ -27,57 +23,29 @@ import (
 // .
 //
 // Note that this BinarySearchTree does not perform type checking; please include any necessary type checking
-// in the customized compare function
+// in the customized compare function.
 type BinarySearchTree struct {
 	Root    *TreeNode
 	compare func(a, b interface{}) int
 }
 
-func (bt *BinarySearchTree) insert(val interface{}, safe bool) bool {
-	if bt.Root == nil {
-		bt.Root = NewTreeNode(val)
-		return true
-	}
-
-	cur := bt.Root
-	c := bt.compare(cur.Val, val)
-	for {
-		if c == 1 { // cur.Val > val
-			if cur.Left == nil {
-				cur.Left = NewTreeNode(val)
-				break
-			} else {
-				cur = cur.Left
-			}
-		} else {
-			if c == 0 && safe {
-				return false
-			}
-			if cur.Right == nil {
-				cur.Right = NewTreeNode(val)
-				break
-			} else {
-				cur = cur.Right
-			}
+// InOrderTreeWalk returns all the values of the tree in an in-order-tree-walk manner
+func (bt *BinarySearchTree) InOrderTreeWalk() []interface{} {
+	r := make([]interface{}, 0)
+	var inorder func(node *TreeNode)
+	inorder = func(node *TreeNode) {
+		if node != nil {
+			inorder(node.Left)
+			r = append(r, node.Val)
+			inorder(node.Right)
 		}
 	}
-	return true
+	inorder(bt.Root)
+	return r
 }
 
-// Insert inserts a new val as a new node
-//
-// Does not insert if the val already exists in the tree.
-func (bt *BinarySearchTree) Insert(val interface{}) bool {
-	return bt.insert(val, true)
-}
-
-// UnsafeInsert inserts a new val as a new node and allows the same val to be inserted for multiple times
-func (bt *BinarySearchTree) UnsafeInsert(val interface{}) {
-	bt.insert(val, false)
-}
-
-// Search returns the value of the FIRST corresponding TreeNode if that TreeNode exists in the tree
-func (bt *BinarySearchTree) Search(val interface{}) (interface{}, bool) {
+// Search returns the pointer to the FIRST corresponding TreeNode if that TreeNode exists in the tree.
+func (bt *BinarySearchTree) Search(val interface{}) (*TreeNode, bool) {
 	cur := bt.Root
 	for {
 		if cur == nil {
@@ -85,7 +53,7 @@ func (bt *BinarySearchTree) Search(val interface{}) (interface{}, bool) {
 		}
 		c := bt.compare(cur.Val, val)
 		if c == 0 {
-			return cur.Val, true
+			return cur, true
 		} else if c == 1 {  // cur.Val > val
 			cur = cur.Left
 		} else {
@@ -95,199 +63,197 @@ func (bt *BinarySearchTree) Search(val interface{}) (interface{}, bool) {
 	return nil, false
 }
 
-// Delete deletes the node if it exists; note that it only deletes 1 node at once
-//
-// returns the val of the deleted node and a boolean value indicating if the deletion is successful
-func (bt *BinarySearchTree) Delete(val interface{}) (interface{}, bool) {
-	parent := DummyTreeNode()
-	isLeftChild := false
-	cur := bt.Root
-
-	// first find the node to delete
+// MaxSince returns the pointer to the max (rightmost) TreeNode in the subtree since the current node.
+func (bt *BinarySearchTree) MaxSince(node *TreeNode) *TreeNode {
+	cur := node
 	for {
-		if cur == nil {
+		if cur == nil || cur.Right == nil {
 			break
 		}
+		cur = cur.Right
+	}
+	return cur
+}
 
+// MinSince returns the pointer to the min (leftmost) TreeNode in the subtree since the current node.
+func (bt *BinarySearchTree) MinSince(node *TreeNode) *TreeNode {
+	cur := node
+	for {
+		if cur == nil || cur.Left == nil {
+			break
+		}
+		cur = cur.Left
+	}
+	return cur
+}
+
+// Max returns the pointer to the max (rightmost) TreeNode in the tree.
+func (bt *BinarySearchTree) Max() *TreeNode {
+	return bt.MaxSince(bt.Root)
+}
+
+// Min returns the pointer to the min (leftmost) TreeNode in the tree.
+func (bt *BinarySearchTree) Min() *TreeNode {
+	return bt.MinSince(bt.Root)
+}
+
+// Successor find the minimum tree node that is bigger than (to the right of) the current node.
+//
+// It will return nil if the current node is nil.
+func (bt *BinarySearchTree) Successor(node *TreeNode) *TreeNode {
+	if node == nil {
+		return nil
+	}
+	if node.Right != nil {
+		return bt.MinSince(node.Right)
+	}
+	y := node.Parent
+	x := node
+	for y != nil && x == y.Right {
+		x = y
+		y = y.Parent
+	}
+	return y
+}
+
+// Predecessor find the maximum tree node that is smaller than (to the left of) the current node.
+//
+// It will return nil if the current node is nil.
+func (bt *BinarySearchTree) Predecessor(node *TreeNode) *TreeNode {
+	if node == nil {
+		return nil
+	}
+	if node.Left != nil {
+		return bt.MaxSince(node.Left)
+	}
+	y := node.Parent
+	x := node
+	for y != nil && x == y.Left {
+		x = y
+		y = y.Parent
+	}
+	return y
+}
+
+func (bt *BinarySearchTree) insert(val interface{}, safe bool) bool {
+	node := NewTreeNode(val)
+	if bt.Root == nil {
+		bt.Root = node
+		return true
+	}
+
+	cur := bt.Root
+	for {
 		c := bt.compare(cur.Val, val)
-
-		if c == 0 {
-			break
-		} else if c == 1 {
-			parent = cur
-			cur = cur.Left
-			isLeftChild = true
-		} else {
-			parent = cur
-			cur = cur.Right
-			isLeftChild = false
-		}
-	}
-
-	// if the element is not found
-	if cur == nil {
-		return nil, false
-	}
-
-	// if the node to delete does not have a left child (it may also do not have a right child)
-	if cur.Left == nil {
-		// if the node is the root node
-		if !parent.hasVal() {
-			bt.Root = cur.Right
-		} else if cur.Right == nil {  // leave node
-			if isLeftChild {
-				parent.Left = nil
-			} else {
-				parent.Right = nil
-			}
-		} else {  // intermediate node
-			if isLeftChild {
-				parent.Left = cur.Right
-			} else {
-				parent.Right = cur.Right
-			}
-		}
-	} else if cur.Right == nil {  // does not have a right child (but must have a left child)
-		// if the node is the root node
-		if !parent.hasVal() {
-			bt.Root = cur.Left
-		} else {  // intermediate node
-			if isLeftChild {
-				parent.Left = cur.Left
-			} else {
-				parent.Right = cur.Left
-			}
-		}
-	} else {  // have both left child and right child
-		parentOfChosen := cur
-		chosenLeaveNode := cur.Left
-		isChosenLeft := true
-
-		// find the max node in the left BST; use that node to replace the cur node
-		for {
-			if chosenLeaveNode.Right == nil {
+		if c == 1 { // cur.Val > val
+			if cur.Left == nil {
+				cur.Left = node
+				node.Parent = cur
 				break
-			}
-			parentOfChosen = chosenLeaveNode
-			chosenLeaveNode = chosenLeaveNode.Right
-			isChosenLeft = false
-		}
-
-		if isChosenLeft {
-			parentOfChosen.Left = chosenLeaveNode.Left
-		} else {
-			parentOfChosen.Right = chosenLeaveNode.Left
-		}
-
-		// if the node to delete is the root node
-		if !parent.hasVal() {
-			bt.Root = chosenLeaveNode
-		} else {
-			if isLeftChild {
-				parent.Left = chosenLeaveNode
 			} else {
-				parent.Right = chosenLeaveNode
+				cur = cur.Left
+			}
+		} else {
+			if c == 0 && safe {
+				return false
+			}
+			if cur.Right == nil {
+				cur.Right = node
+				node.Parent = cur
+				break
+			} else {
+				cur = cur.Right
 			}
 		}
+	}
+	return true
+}
 
-		// don't forget to change the children of the chosen node
-		chosenLeaveNode.Left = cur.Left
-		chosenLeaveNode.Right = cur.Right
+// Insert inserts a new val as a new node.
+//
+// Does not insert if the val already exists in the tree.
+func (bt *BinarySearchTree) Insert(val interface{}) bool {
+	return bt.insert(val, true)
+}
+
+// UnsafeInsert inserts a new val as a new node and allows the same val to be inserted for multiple times.
+func (bt *BinarySearchTree) UnsafeInsert(val interface{}) {
+	bt.insert(val, false)
+}
+
+// uses subtree n2 to replace subtree n1 and updates the parent information (and this is exactly the only thing it does).
+func (bt *BinarySearchTree) transplant(n1, n2 *TreeNode) {
+	if n1.Parent == nil {
+		bt.Root = n2
+	} else if n1 == n1.Parent.Left {
+		n1.Parent.Left = n2
+	} else {
+		n1.Parent.Right = n2
+	}
+	if n2 != nil {
+		n2.Parent = n1.Parent
+	}
+}
+
+// DeleteNode deletes the node from the tree.
+//
+// it returns a boolean value indicating if the deletion is successful.
+func (bt *BinarySearchTree) DeleteNode(node *TreeNode) bool {
+	if node == nil {
+		return false
 	}
 
-	return cur.Val, true
+	if node.Left == nil {  // if the node does not have a left child (it may also do not have a right child)
+		bt.transplant(node, node.Right)
+	} else if node.Right == nil {  // does not have a right child (but must have a left child)
+		bt.transplant(node, node.Left)
+	} else {  // has both right child and left child
+		y := bt.MaxSince(node.Left)  // the max node that is smaller than the current node
+		if y.Parent != node {
+			bt.transplant(y, y.Left)
+			y.Left = node.Left
+			y.Left.Parent = y
+		}
+		bt.transplant(node, y)
+		y.Right = node.Right
+		y.Right.Parent = y
+	}
+
+	return true
+}
+
+// Delete deletes the First node with the corresponding value if it exists.
+//
+// it returns a boolean value indicating if the deletion is successful.
+func (bt *BinarySearchTree) Delete(v interface{}) bool {
+	node, _ := bt.Search(v)
+	return bt.DeleteNode(node)
 }
 
 // Height returns the height of the tree
 func (bt *BinarySearchTree) Height() int {
-	return len(bt.Values(false))
-}
-
-// Values returns all the values in the tree (in a bfs manner)
-//
-// fill: if set to true, nil will be used to fill the empty space of non-exist child nodes
-func (bt *BinarySearchTree) Values(fill bool) [][]interface{} {
-	if bt.Root == nil {  // when the tree is empty
-		return make([][]interface{}, 0)
-	}
-
-	queue1 := NewQueue() // nodes of the current level
-	queue1.Push(bt.Root)
-	queue2 := NewQueue() // nodes of the next level
-	ans := make([][]interface{}, 0)
-	cache := make([]interface{}, 0)
-
-	hasRealValInNextLoop := false
-
-	for {
-		if !queue1.HasNext() {
-			tmp := make([]interface{}, len(cache))
-			copy(tmp, cache)
-			ans = append(ans, tmp)
-			cache = cache[:0]  // clear the cache
-
-			if !hasRealValInNextLoop {
-				break
+	max := 0
+	count := 0
+	var dfs func(cur *TreeNode)
+	dfs = func(cur *TreeNode) {
+		if cur != nil {
+			count ++
+			if count > max {
+				max = count
 			}
-
-			if !queue2.HasNext() {
-				break
-			} else {
-				queue1 = queue2.Copy()
-				queue2.Empty()
-				hasRealValInNextLoop = false
-			}
-		} else {
-			cur := queue1.Pop().(*TreeNode)
-
-			if cur != nil {
-				cache = append(cache, cur.Val)
-				if cur.Left != nil {
-					queue2.Push(cur.Left)
-					hasRealValInNextLoop = true
-				} else if fill {
-					queue2.Push(nil)
-				}
-
-				if cur.Right != nil {
-					queue2.Push(cur.Right)
-					hasRealValInNextLoop = true
-				} else if fill {
-					queue2.Push(nil)
-				}
-			} else if fill {
-				cache = append(cache, nil)
-				queue2.Push(nil)
-				queue2.Push(nil)
-			}
+			dfs(cur.Left)
+			dfs(cur.Right)
+			count --
 		}
 	}
-	return ans
-}
-
-// FlattenedValues returns the values in a flattened 1d slice.
-//
-// fill: if set to true, nil will be used to fill the empty space of non-exist child nodes
-func (bt *BinarySearchTree) FlattenedValues(fill bool) []interface{} {
-	return common.Flatten2D(bt.Values(fill))
-}
-
-// Copy makes a deep copy of the tree
-func (bt *BinarySearchTree) Copy() *BinarySearchTree {
-	values := bt.FlattenedValues(false)
-	newTree := NewBSTree(bt.compare)
-	for _, val := range values {
-		newTree.Insert(common.Copy(val))
-	}
-	return newTree
+	dfs(bt.Root)
+	return max
 }
 
 // Rebuild returns a tree with the same set of elements that are in different order and the distribution will be more
 // condense
 func (bt *BinarySearchTree) Rebuild() *BinarySearchTree {
-	values := bt.FlattenedValues(false)
-	sorter := common.NewSorter(bt.compare)
-	sorter.Sort(values)
+	values := bt.InOrderTreeWalk()
 
 	newTree := NewBSTree(bt.compare)
 
@@ -319,8 +285,8 @@ func NewBSTree(compare func(a, b interface{}) int) *BinarySearchTree {
 	return &BinarySearchTree{compare: compare}
 }
 
-// NewBSTreeInt returns a BinarySearchTree with int val and default compare method
-func NewBSTreeInt() *BinarySearchTree {
+// NewIntBSTree returns a BinarySearchTree with int val and default compare method
+func NewIntBSTree() *BinarySearchTree {
 	compare := func(a, b interface{}) int {
 		if a.(int) > b.(int) {
 			return 1

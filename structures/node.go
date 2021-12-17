@@ -6,15 +6,18 @@ package structures
 //
 // Attributes:
 //
-// Val interface{}
+// Val interface{}: the value.
 //
-// Left *TreeNode  the smaller (or equal) left child
+// Left *TreeNode: the smaller (or equal) left child.
 //
-// Right *TreeNode  the bigger right child
+// Right *TreeNode: the bigger right child.
+//
+// Parent *TreeNode: the parent node.
 type TreeNode struct {
 	Val interface{}
 	Left *TreeNode
 	Right *TreeNode
+	Parent *TreeNode
 }
 
 // returns false if the Val is nil
