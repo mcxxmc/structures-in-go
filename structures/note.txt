@@ -1,4 +1,4 @@
-There structures implements common.Template interface and can be used as Val:
+There structures implements common.Value interface and can be used as Val:
 1. Vector
 
 
@@ -18,9 +18,13 @@ IMPORTANT: the below achieves better memory allocation by e.g., limiting the use
     stack
     queue
     linked-list
+    red-black-tree (?)
+    binary-tree (?)
 
 OK:
     binary-heap
     stack
     queue
     linked-list
+    red-black-tree (?)
+    binary-tree (?)

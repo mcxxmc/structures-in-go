@@ -20,18 +20,35 @@ type TreeNode struct {
 	Parent *TreeNode
 }
 
-// returns false if the Val is nil
-func (node *TreeNode) hasVal() bool {
-	return node.Val != nil
-}
-
-// DummyTreeNode returns a dummy tree node with val as nil
-func DummyTreeNode() *TreeNode {
-	return &TreeNode{Val: nil}
-}
-
 func NewTreeNode(val interface{}) *TreeNode {
 	return &TreeNode{Val: val}
+}
+
+// RBTreeNode
+//
+// The tree node for red-black-tree.
+//
+// Attributes:
+//
+// Val interface{}: the value.
+//
+// Color bool: if the node is red.
+//
+// Left *RBTreeNode: the smaller (or equal) left child.
+//
+// Right *RBTreeNode: the bigger right child.
+//
+// Parent *RBTreeNode: the parent node.
+type RBTreeNode struct {
+	Val   interface{}
+	Color bool
+	Left  *RBTreeNode
+	Right *RBTreeNode
+	Parent *RBTreeNode
+}
+
+func NewRBTreeNode(val interface{}, isRed bool) *RBTreeNode {
+	return &RBTreeNode{Val: val, Color: isRed}
 }
 
 // BTreeNode The node used as the internal node & the leaf node for B tree

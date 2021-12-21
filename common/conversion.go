@@ -18,7 +18,7 @@ func ToString(val interface{}) string {
 	case nil:
 		return " "
 	default:
-		if tmp, ok := val.(Template); ok {
+		if tmp, ok := val.(Value); ok {
 			return tmp.String()
 		}
 		return " "
@@ -42,8 +42,8 @@ func ToInterfaces(values interface{}) ([]interface{}, error) {
 		return r, nil
 	case []interface{}:
 		return values.([]interface{}), nil
-	case []Template:
-		tmp := values.([]Template)
+	case []Value:
+		tmp := values.([]Value)
 		r := make([]interface{}, len(tmp))
 		for i := 0; i < len(tmp); i ++ {
 			r[i] = tmp[i]

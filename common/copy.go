@@ -22,7 +22,7 @@ func Copy(val interface{}) interface{} {
 		}
 		return tmp
 	default:
-		if tmp, ok := val.(Template); ok {
+		if tmp, ok := val.(Value); ok {
 			return tmp.Copy()
 		}
 		return val

@@ -2,13 +2,13 @@ package structures
 
 // BinarySearchTree
 //
-// The binary search tree.
+// The binary search tree. Please use NewBSTree() as the safe constructor.
 //
 // Attributes:
 //
-//		Root *TreeNode
+//	Root *TreeNode
 //
-//		compare func(a, b interface{}) bool
+//	compare func(a, b interface{}) bool
 //
 // .
 //
@@ -29,7 +29,7 @@ type BinarySearchTree struct {
 	compare func(a, b interface{}) int
 }
 
-// InOrderTreeWalk returns all the values of the tree in an in-order-tree-walk manner
+// InOrderTreeWalk returns all the values of the tree in an in-order-tree-walk manner.
 func (bt *BinarySearchTree) InOrderTreeWalk() []interface{} {
 	r := make([]interface{}, 0)
 	var inorder func(node *TreeNode)
@@ -230,7 +230,9 @@ func (bt *BinarySearchTree) Delete(v interface{}) bool {
 	return bt.DeleteNode(node)
 }
 
-// Height returns the height of the tree
+// Height returns the height of the tree.
+//
+// Warning: it uses dfs and is expensive.
 func (bt *BinarySearchTree) Height() int {
 	max := 0
 	count := 0
@@ -251,7 +253,7 @@ func (bt *BinarySearchTree) Height() int {
 }
 
 // Rebuild returns a tree with the same set of elements that are in different order and the distribution will be more
-// condense
+// condense.
 func (bt *BinarySearchTree) Rebuild() *BinarySearchTree {
 	values := bt.InOrderTreeWalk()
 

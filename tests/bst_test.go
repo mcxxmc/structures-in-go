@@ -25,9 +25,6 @@ func TestBST(t *testing.T)  {
 	}
 
 	// 2
-	if h := bTree.Height(); h != 4 {
-		t.Errorf("BST2; expected height 4, got %d", h)
-	}
 	node, b := bTree.Search(8)
 	if !b {
 		t.Errorf("BST2: fail to search")
