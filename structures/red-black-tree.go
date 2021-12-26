@@ -277,7 +277,9 @@ func (rbt *RedBlackTree) UnsafeInsert(val interface{}) {
 	rbt.insert(val, false)
 }
 
-// uses subtree n2 to replace subtree n1 and updates the parent information (and this is exactly the only thing it does).
+// uses subtree n2 to replace subtree n1 by connecting n2 and the parent of n1.
+//
+// It does not update the child of n1 or n2.
 func (rbt *RedBlackTree) transplant(n1, n2 *RBTreeNode) {
 	if n1.Parent == rbt.sentinel {
 		rbt.Root = n2
@@ -365,19 +367,19 @@ func (rbt *RedBlackTree) DeleteNode(node *RBTreeNode) bool {
 		x = node.Left
 		rbt.transplant(node, node.Left)
 	} else {
-		y = rbt.MaxSince(node.Left)
+		y = rbt.MinSince(node.Right)  // the successor of node
 		yOriginalColor = y.Color
-		x = y.Left
+		x = y.Right
 		if y.Parent != node {
-			rbt.transplant(y, y.Left)
-			y.Left = node.Left
-			y.Left.Parent = y
+			rbt.transplant(y, y.Right)
+			y.Right = node.Right
+			y.Right.Parent = y
 		} else {
 			x.Parent = y
 		}
 		rbt.transplant(node, y)
-		y.Right = node.Right
-		y.Right.Parent = y
+		y.Left = node.Left
+		y.Left.Parent = y
 		y.Color = node.Color
 	}
 

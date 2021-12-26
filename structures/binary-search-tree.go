@@ -181,7 +181,9 @@ func (bt *BinarySearchTree) UnsafeInsert(val interface{}) {
 	bt.insert(val, false)
 }
 
-// uses subtree n2 to replace subtree n1 and updates the parent information (and this is exactly the only thing it does).
+// uses subtree n2 to replace subtree n1 by connecting n2 and the parent of n1.
+//
+// It does not update the child of n1 or n2.
 func (bt *BinarySearchTree) transplant(n1, n2 *TreeNode) {
 	if n1.Parent == nil {
 		bt.Root = n2
@@ -208,15 +210,15 @@ func (bt *BinarySearchTree) DeleteNode(node *TreeNode) bool {
 	} else if node.Right == nil {  // does not have a right child (but must have a left child)
 		bt.transplant(node, node.Left)
 	} else {  // has both right child and left child
-		y := bt.MaxSince(node.Left)  // the max node that is smaller than the current node
+		y := bt.MinSince(node.Right)  // the min node that is bigger than the current node
 		if y.Parent != node {
-			bt.transplant(y, y.Left)
-			y.Left = node.Left
-			y.Left.Parent = y
+			bt.transplant(y, y.Right)
+			y.Right = node.Right
+			y.Right.Parent = y
 		}
 		bt.transplant(node, y)
-		y.Right = node.Right
-		y.Right.Parent = y
+		y.Left = node.Left
+		y.Left.Parent = y
 	}
 
 	return true

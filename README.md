@@ -22,7 +22,7 @@ Please always use the safe constructor (e.g., `NewStack()`) to initialize any st
 Some attributes in the structures are protected from outside access for safety reasons; 
 please call corresponding methods when necessary.
 
-All trees use predecessor for replacement in deletion.
+All trees use the successor for replacement in deletion.
 
 ## The "compare" method 
 Many structures require a "compare" function as the input for the safe constructor. 
