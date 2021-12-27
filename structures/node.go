@@ -54,8 +54,12 @@ func NewRBTreeNode(val interface{}, isRed bool) *RBTreeNode {
 // BTreeNode The node used as the internal node & the leaf node for B tree
 //
 // Number of children of a node is equal to the number of keys in it plus 1.
+//
+// N int: the number of keys.
 type BTreeNode struct {
-	Values []interface{}
+	IsLeaf bool
+	N int
+	Keys []interface{}
 	Children []*BTreeNode
 	Parent *BTreeNode
 }
@@ -67,10 +71,11 @@ type BTreeNode struct {
 //		The minimum degree.
 //		Every node except root must contain at least t-1 keys. The root may contain minimum 1 key.
 //		All nodes (including root) may contain at most 2*t – 1 keys.
+//		t must > 1.
 //
 // Number of children of a node is equal to the number of keys in it plus 1.
-func NewBTreeNode(t int) *BTreeNode {
-	return &BTreeNode{Values: make([]interface{}, 2 * t - 1), Children: make([]*BTreeNode, 2 * t)}
+func NewBTreeNode(t int, isLeaf bool) *BTreeNode {
+	return &BTreeNode{IsLeaf: isLeaf, N : 0, Keys: make([]interface{}, 2 * t - 1), Children: make([]*BTreeNode, 2 * t)}
 }
 
 // Node
@@ -81,7 +86,7 @@ func NewBTreeNode(t int) *BTreeNode {
 //
 // Val interface{}
 //
-// Next *BiNode  the child node
+// Next *Node  the child node
 type Node struct {
 	Val interface{}
 	Next *Node
