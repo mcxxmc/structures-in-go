@@ -123,7 +123,7 @@ func (bt *BTree) splitChild(node *BTreeNode, index int) {
 
 	y.N = t - 1  // the mid-key (t th key) is popped up so the total number of keys left is 2 * t -2
 
-	for i := node.N - 1; i >= index + 1; i -- {
+	for i := node.N; i >= index + 1; i -- {  // note that we assume node itself is not full
 		node.Children[i + 1] = node.Children[i]
 	}
 	node.Children[index + 1] = z
@@ -208,7 +208,7 @@ func (bt *BTree) removeFromNode(node *BTreeNode, val interface{}) bool {
 
 // removes a key from a leaf node.
 func (bt *BTree) removeFromLeaf(node *BTreeNode, index int) bool {
-	for i := index + 1; i < node.N - 1; i ++ {
+	for i := index + 1; i < node.N; i ++ {
 		node.Keys[i - 1] = node.Keys[i]
 	}
 	node.N --
@@ -358,10 +358,26 @@ func (bt *BTree) Delete(val interface{}) bool {
 
 // Values returns all the values in the tree in an ordered manner.
 //
-// Note: it uses bfs and is expensive.
+// Note: it uses (modified) dfs and is expensive.
 func (bt *BTree) Values() []interface{} {
-	// TODO
-	return []interface{}{}
+	r := make([]interface{}, bt.num)
+	index := 0
+	var dfs func(node *BTreeNode)
+	dfs = func(node *BTreeNode) {
+		if node == nil {
+			return
+		}
+		for i := 0; i < node.N; i ++ {
+			if !node.IsLeaf {
+				dfs(node.Children[i])
+			}
+			r[index] = node.Keys[i]
+			index ++
+		}
+		dfs(node.Children[node.N])
+	}
+	dfs(bt.Root)
+	return r
 }
 
 // NewBTree returns a NewBtree object
