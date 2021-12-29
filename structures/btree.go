@@ -10,9 +10,11 @@ import (
 //
 // Attributes:
 //
-//		Root *TreeNode
-//
 //		t int
+//
+//		num int
+//
+//		Root *TreeNode
 //
 //		compare func(a, b interface{}) bool
 //
@@ -39,10 +41,11 @@ import (
 // Note that this BTree does not perform type checking; please include any necessary type checking
 // in the customized compare function
 type BTree struct {
-	Root *BTreeNode
 	t int
-	compare func(a, b interface{}) int
 	num int  // track number of elements in the tree
+	Root *BTreeNode
+	compare func(a, b interface{}) int
+
 }
 
 // T returns the minimum degree

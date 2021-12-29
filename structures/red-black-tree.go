@@ -11,9 +11,9 @@ const black = false
 //
 // Root *RBTreeNode
 //
-// compare func(a, b interface{}) int
-//
 // sentinel *RBTreeNode
+//
+// compare func(a, b interface{}) int
 //
 // .
 //
@@ -31,8 +31,8 @@ const black = false
 // in the customized compare function.
 type RedBlackTree struct {
 	Root *RBTreeNode
-	compare  func(a, b interface{}) int
 	sentinel *RBTreeNode
+	compare  func(a, b interface{}) int
 }
 
 // InOrderTreeWalk returns all the values of the tree in an in-order-tree-walk manner.

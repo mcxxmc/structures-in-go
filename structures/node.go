@@ -126,3 +126,37 @@ func DummyBiNode() *BiNode {
 func NewBiNode(val interface{}) *BiNode {
 	return &BiNode{Val: val}
 }
+
+// FibNode
+//
+// The node structure for fibonacci heap.
+//
+// Attributes:
+//
+// Marked bool: if the node has lost a child node.
+//
+// Degree int: the number of the children of this node.
+//
+// Val interface{}
+//
+// Parent *FibNode: the parent.
+//
+// Child *FibNode: the child.
+//
+// Left *FibNode: the left sibling.
+//
+// Right *FibNode: the right sibling.
+type FibNode struct {
+	Marked bool
+	Degree int
+	Val interface{}
+	Parent *FibNode
+	Child *FibNode
+	Left *FibNode
+	Right *FibNode
+}
+
+// NewFibNode creates a new Fibonacci node object.
+func NewFibNode(val interface{}) *FibNode {
+	return &FibNode{Val: val}
+}

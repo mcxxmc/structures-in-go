@@ -8,7 +8,7 @@ package structures
 //
 //	Root *TreeNode
 //
-//	compare func(a, b interface{}) bool
+//	compare func(a, b interface{}) int
 //
 // .
 //

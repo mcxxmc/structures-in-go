@@ -18,9 +18,9 @@ import (
 // compare is the function for comparing different node values;
 // it should return 1 if a > b , 0 if a == b, -1 if a < b
 type BinaryHeap struct {
+	top     int // the rightmost boundary (inclusive)
 	Heap    []interface{}
 	compare func(a, b interface{}) int
-	top     int // the rightmost boundary (inclusive)
 }
 
 func (bh *BinaryHeap) Size() int {
