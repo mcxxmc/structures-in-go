@@ -147,8 +147,8 @@ func NewBiNode(val interface{}) *BiNode {
 //
 // Right *FibNode: the right sibling.
 type FibNode struct {
-	Marked bool
-	Degree int
+	Marked bool  // false by default
+	Degree int  // 0 by default
 	Val interface{}
 	Parent *FibNode
 	Child *FibNode
