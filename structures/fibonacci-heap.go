@@ -132,20 +132,22 @@ func (fib *FibonacciHeap) appendChild(x, child *FibNode) {
 	x.Degree ++
 }
 
+// consolidating the root nodes by reducing the number of nodes in the root list repeatedly.
 func (fib *FibonacciHeap) consolidate() {
 	dn := int(math.Log2(float64(fib.n)))  // the upper boundary
 	a := make([]*FibNode, dn + 1)
 
 	fib.Min.Left.Right = nil  // break the root list
 	cur := fib.Min
-	for cur != nil {
+	for cur != nil {  // loop through all the root nodes
 		x := cur
 		d := x.Degree
 
-		for a[d] != nil {
+		for a[d] != nil {  // find root nodes with the same degree and link them together
 			y := a[d]
 			if fib.compare(x.Val, y.Val) == 1 {
 				x, y = y, x
+				cur = x  // update cur here as well
 			}
 			fib.link(y, x)
 			a[d] = nil
