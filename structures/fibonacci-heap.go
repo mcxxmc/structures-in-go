@@ -1,6 +1,10 @@
 package structures
 
-import "math"
+import (
+	"errors"
+	"math"
+)
+//TODO: make a node list a real list with loop
 
 // FibonacciHeap
 //
@@ -27,7 +31,12 @@ type FibonacciHeap struct {
 	compare func(a, b interface{}) int
 }
 
-// inserts a new node to the root list. It does not update Min unless the heap is empty.
+// NumOfElements returns the number of nodes in the heap.
+func (fib *FibonacciHeap) NumOfElements() int {
+	return fib.n
+}
+
+// inserts a new node to the root list. It does not update fib.n. It does not update Min unless the heap is empty.
 func (fib *FibonacciHeap) insert(newNode *FibNode) {
 	if fib.Min == nil {  // creating a new root list
 		newNode.Left = newNode
@@ -41,15 +50,13 @@ func (fib *FibonacciHeap) insert(newNode *FibNode) {
 		rightSibling.Left = newNode
 		newNode.Right = rightSibling
 	}
-	fib.n ++
 }
 
-// (simply) removes a node from the root list. It does not modify the attributes of the node, and does not update Min
-// unless the heap is empty after the deletion.
-func (fib *FibonacciHeap) remove(node *FibNode) {
-	if node.Left == node {  // is the only node
+// (simply) removes a node from the root list. It does not modify the attributes of the node and fib.n,
+// and does not update Min unless the heap is empty after the deletion.
+func (fib *FibonacciHeap) removeFromRoot(node *FibNode) {
+	if node.Right == node {  // is the only node
 		fib.Min = nil
-		fib.n = 0
 	} else {
 		left := node.Left
 		right := node.Right
@@ -58,13 +65,15 @@ func (fib *FibonacciHeap) remove(node *FibNode) {
 	}
 }
 
-// Insert inserts a new val into the heap.
-func (fib *FibonacciHeap) Insert(val interface{}) {
+// Insert inserts a new val into the heap and returns a pointer to the inserted node.
+func (fib *FibonacciHeap) Insert(val interface{}) *FibNode {
 	newNode := NewFibNode(val)
 	fib.insert(newNode)
+	fib.n ++
 	if fib.compare(fib.Min.Val, newNode.Val) == 1 {  // replace fib.Min if necessary
 		fib.Min = newNode
 	}
+	return newNode
 }
 
 // Minimum returns the min node of the heap; it won't change the heap.
@@ -94,7 +103,7 @@ func (fib *FibonacciHeap) Union(other *FibonacciHeap) *FibonacciHeap {
 		rightSibling.Left = otherMin
 
 		// find new Min
-		if fib.compare(fib.Min, other.Min) == 1 {
+		if fib.compare(fib.Min.Val, other.Min.Val) == 1 {
 			h.Min = other.Min
 		}
 	}
@@ -106,7 +115,7 @@ func (fib *FibonacciHeap) Union(other *FibonacciHeap) *FibonacciHeap {
 
 // links node x and y and makes y a child of x. x and y should both be in the root list!
 func (fib *FibonacciHeap) link(y, x *FibNode) {
-	fib.remove(y)
+	fib.removeFromRoot(y)
 	fib.appendChild(x, y)
 	y.Marked = false
 }
@@ -137,13 +146,15 @@ func (fib *FibonacciHeap) consolidate() {
 	dn := int(math.Log2(float64(fib.n)))  // the upper boundary
 	a := make([]*FibNode, dn + 1)
 
-	fib.Min.Left.Right = nil  // break the root list
 	cur := fib.Min
-	for cur != nil {  // loop through all the root nodes
+	count := make(map[*FibNode]bool)
+	for cur != nil && !count[cur] {  // loop through all the root nodes
 		x := cur
+		right := cur.Right
+		count[x] = true
 		d := x.Degree
 
-		for a[d] != nil {  // find root nodes with the same degree and link them together
+		for d < dn && a[d] != nil {  // find root nodes with the same degree and link them together
 			y := a[d]
 			if fib.compare(x.Val, y.Val) == 1 {
 				x, y = y, x
@@ -155,7 +166,7 @@ func (fib *FibonacciHeap) consolidate() {
 		}
 
 		a[d] = x
-		cur = cur.Right
+		cur = right
 	}
 
 	fib.Min = nil
@@ -176,7 +187,7 @@ func (fib *FibonacciHeap) ExtractMin() *FibNode {
 	if z != nil {
 		child := z.Child
 		if child != nil {
-			child.Left.Right = nil  // break the child list
+			child.Left.Right = nil  // break the child list; it is ok to break here because we will reset siblings later
 		}
 		for child != nil {
 			nextChild := child.Right
@@ -184,7 +195,7 @@ func (fib *FibonacciHeap) ExtractMin() *FibNode {
 			child.Parent = nil
 			child = nextChild
 		}
-		fib.remove(z)
+		fib.removeFromRoot(z)
 		if z == z.Right {  // is the only node
 			fib.Min = nil
 		} else {
@@ -194,6 +205,72 @@ func (fib *FibonacciHeap) ExtractMin() *FibNode {
 		fib.n --
 	}
 	return z
+}
+
+// removes x from the child list of y and decrease the degree of y by 1. It does not update x.
+func (fib *FibonacciHeap) removeChild(x, y *FibNode) {
+	if y.Degree == 1 {
+		y.Child = nil
+	} else if y.Child == x {
+		y.Child = x.Right
+	}
+	// reconnect the list
+	x.Left.Right = x.Right
+	x.Right.Left = x.Left
+	y.Degree --
+}
+
+// cuts the link between node x and its parent node y, making x a root node.
+func (fib *FibonacciHeap) cut(x, y *FibNode) {
+	fib.removeChild(x, y)
+	fib.insert(x)
+	x.Parent = nil
+	x.Marked = false
+}
+
+// stops until reaching a root node or an unmarked node.
+func (fib *FibonacciHeap) cascadingCut(y *FibNode) {
+	z := y.Parent
+	if z != nil {
+		if !y.Marked {
+			y.Marked = true
+		} else {
+			fib.cut(y, z)
+			fib.cascadingCut(z)
+		}
+	}
+}
+
+// DecreaseKey decrease the val of a node to newVal.
+func (fib *FibonacciHeap) DecreaseKey(node *FibNode, newVal interface{}) error {
+	if fib.compare(newVal, node.Val) == 1 {
+		return errors.New("new key cannot be greater than the old key")
+	}
+
+	node.Val = newVal
+	y := node.Parent
+
+	if y != nil && fib.compare(y.Val, node.Val) == 1 {
+		fib.cut(node, y)
+		fib.cascadingCut(y)
+	}
+	if fib.compare(fib.Min.Val, node.Val) == 1 {
+		fib.Min = node
+	}
+
+	return nil
+}
+
+// Delete deletes a node from the heap.
+//
+// It requires a min interface{} as input so for all the values in the heap, FibonacciHeap.compare(a, min) == 1.
+func (fib *FibonacciHeap) Delete(node *FibNode, min interface{}) error {
+	err := fib.DecreaseKey(node, min)
+	if err != nil {
+		return err
+	}
+	fib.ExtractMin()
+	return nil
 }
 
 func NewFibonacciHeap(compare func(a, b interface{}) int) *FibonacciHeap {
