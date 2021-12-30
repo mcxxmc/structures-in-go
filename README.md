@@ -15,6 +15,7 @@ Currently supported and tested structures include:
 4. binary heap
 5. binary search tree
 6. red black tree
+7. fibonacci heap (in process)
 
 
 Please always use the safe constructor (e.g., `NewStack()`) to initialize any structure.
