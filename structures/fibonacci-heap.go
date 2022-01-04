@@ -4,7 +4,8 @@ import (
 	"errors"
 	"math"
 )
-//TODO: make a node list a real list with loop
+//TODO: alternative: make a node list a real list with loop; however, this may lead to lower performance due to slicing
+// and appending
 
 // FibonacciHeap
 //
